@@ -1,0 +1,14 @@
+FROM openjdk:8u111-jre-alpine
+
+MAINTAINER Dieter Wimberger "dieter@wimpi.net"
+
+EXPOSE 10389
+
+RUN apk add --no-cache openssl
+RUN mkdir /ldap
+WORKDIR /ldap
+
+COPY docker/ldap/users.ldif /ldap/users.ldif
+COPY docker/ldap/ldap-server.jar /ldap/ldap-server.jar
+
+CMD ["java","-jar","ldap-server.jar", "users.ldif"]

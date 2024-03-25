@@ -1,0 +1,71 @@
+version: '3'
+
+services:
+
+  php-fpm:
+    build:
+      context: .
+      dockerfile: docker/php/DockerFile
+    environment:
+      PHP_EXTENSION_LDAP: "1"
+    volumes:
+      - ./:/var/www/app
+#    depends_on:
+#      - ldap-server
+    networks:
+      app:
+
+  ldap-server:
+    image: osixia/openldap
+    environment:
+      - LDAP_ADMIN_PASSWORD=changethis
+      - LDAP_READONLY_USER=true
+      - LDAP_READONLY_USER_PASSWORD=changethistoo
+    ports:
+      - "1389:389"
+      - "1636:636"
+    volumes:
+      - ldap_data:/var/lib/ldap # файл с данными ldap, бд, конфиги
+      - ldap_data:/etc/ldap/slapd.d # конфиг файлы slapd, определяющие поведение сервера ldap
+#      - ./docker/ldap/directory.ldif:/container/service/slapd/assets/config/bootstrap/ldif/custom/directory.ldif
+    networks:
+      app:
+
+#  ldap-ad-it:
+#    build:
+#      context: .
+#      dockerfile: docker/ldap/DockerFile
+#    ports:
+#      - "10389:10389"
+#    networks:
+#      app:
+
+networks:
+  app:
+
+volumes:
+  ldap_data:
+  freeipa_data:
+
+#  ldap-ad-it:
+#    image: dwimberger/ldap-ad-it
+#    ports:
+#      - "10389:10389"
+#    networks:
+#      app:
+
+#  freeipa:
+#    image:
+#    ports:
+#      - 80:80
+#      - 443:443
+#    environment:
+#      - IPA_SERVER_HOSTNAME=freeipa.example.com
+#      - IPA_SERVER_DOMAIN=example.com
+#      - IPA_REALM=EXAMPLE.COM
+#      - IPA_DOMAIN=example.com
+#      - IPA_ADMIN_PASSWORD=AdminPassw0rd
+#    volumes:
+#      - /sys/fs/cgroup:/sys/fs/cgroup:ro # информацию о ресурсах, которые доступны для контроля сервера
+#      - freeipa_data:/data
+#    restart: unless-stopped
